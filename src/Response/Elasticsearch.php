@@ -58,7 +58,7 @@ class Elasticsearch implements ElasticsearchInterface, ResponseInterface, ArrayA
      */
     public function setResponse(ResponseInterface $response, bool $throwException = true): void
     {
-        $this->productCheck($response);
+        //$this->productCheck($response);
         $this->response = $response;
         $status = $response->getStatusCode();
         if ($throwException && $status > 399 && $status < 500) {
