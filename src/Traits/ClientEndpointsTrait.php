@@ -250,6 +250,15 @@ trait ClientEndpointsTrait
 		return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
 	}
 
+    private function getTypeEndpoint(array $params = []): string
+    {
+        if(empty($params['type'])){
+            return '_doc';
+        }
+
+        return is_string($params['type']) ? $params['type'] : '_doc';
+    }
+
 
 	/**
 	 * Removes a document from the index.
@@ -284,7 +293,8 @@ trait ClientEndpointsTrait
 	public function delete(array $params = [])
 	{
 		$this->checkRequiredParameters(['id','index'], $params);
-		$url = '/' . $this->encode($params['index']) . '/_doc/' . $this->encode($params['id']);
+
+		$url = '/' . $this->encode($params['index']) . "/{$this->getTypeEndpoint($params)}/" . $this->encode($params['id']);
 		$method = 'DELETE';
 
 		$url = $this->addQueryString($url, $params, ['wait_for_active_shards','refresh','routing','timeout','if_seq_no','if_primary_term','version','version_type','pretty','human','error_trace','source','filter_path']);
@@ -469,7 +479,7 @@ trait ClientEndpointsTrait
 	public function exists(array $params = [])
 	{
 		$this->checkRequiredParameters(['id','index'], $params);
-		$url = '/' . $this->encode($params['index']) . '/_doc/' . $this->encode($params['id']);
+		$url = '/' . $this->encode($params['index']) . "/{$this->getTypeEndpoint($params)}/" . $this->encode($params['id']);
 		$method = 'HEAD';
 
 		$url = $this->addQueryString($url, $params, ['stored_fields','preference','realtime','refresh','routing','_source','_source_excludes','_source_includes','version','version_type','pretty','human','error_trace','source','filter_path']);
@@ -657,7 +667,7 @@ trait ClientEndpointsTrait
 	public function get(array $params = [])
 	{
 		$this->checkRequiredParameters(['id','index'], $params);
-		$url = '/' . $this->encode($params['index']) . '/_doc/' . $this->encode($params['id']);
+		$url = '/' . $this->encode($params['index']) . "/{$this->getTypeEndpoint($params)}/" . $this->encode($params['id']);
 		$method = 'GET';
 
 		$url = $this->addQueryString($url, $params, ['force_synthetic_source','stored_fields','preference','realtime','refresh','routing','_source','_source_excludes','_source_includes','version','version_type','pretty','human','error_trace','source','filter_path']);
@@ -891,7 +901,7 @@ trait ClientEndpointsTrait
 	{
 		$this->checkRequiredParameters(['index','body'], $params);
 		if (isset($params['id'])) {
-			$url = '/' . $this->encode($params['index']) . '/_doc/' . $this->encode($params['id']);
+			$url = '/' . $this->encode($params['index']) . "/{$this->getTypeEndpoint($params)}/" . $this->encode($params['id']);
 			$method = 'PUT';
 		} else {
 			$url = '/' . $this->encode($params['index']) . '/_doc';
